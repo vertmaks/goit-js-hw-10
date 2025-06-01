@@ -1,5 +1,7 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const datePicker = document.getElementById('datetime-picker');
 const startBtn = document.querySelector('.start-btn');
@@ -22,7 +24,11 @@ const options = {
   onClose(selectedDates) {
     initTime = selectedDates[0];
     if (initTime < Date.now()) {
-      alert('Please choose a date in the future');
+      iziToast.error({
+        message: 'Please choose a date in the future',
+        position: 'topRight',
+      });
+      // alert('Please choose a date in the future');
       startBtn.setAttribute('disabled', '');
     }
     if (initTime > Date.now()) startBtn.removeAttribute('disabled');
@@ -45,34 +51,12 @@ function handleUserStart(e) {
     timerData.hours.textContent = hours;
     timerData.minutes.textContent = minutes;
     timerData.seconds.textContent = seconds;
-    if (diffMs <= 0) {
-      datePicker.removeAttribute('disabled');
-      startBtn.removeAttribute('disabled');
-      startBtn.classList.remove('hide');
-      startBtn.classList.remove('visually-hidden');
-      restartBtn.classList.remove('on-screen');
-      restartBtn.classList.add('visually-hidden');
-      clearInterval(intervalId);
-      timerData.days.textContent = '00';
-      timerData.hours.textContent = '00';
-      timerData.minutes.textContent = '00';
-      timerData.seconds.textContent = '00';
-    }
+    if (diffMs <= 0) resetForm();
   }, 1000);
 }
 
 function handleUserRestart(e) {
-  clearInterval(intervalId);
-  datePicker.removeAttribute('disabled');
-  startBtn.removeAttribute('disabled');
-  startBtn.classList.remove('hide');
-  startBtn.classList.remove('visually-hidden');
-  restartBtn.classList.remove('on-screen');
-  restartBtn.classList.add('visually-hidden');
-  timerData.days.textContent = '00';
-  timerData.hours.textContent = '00';
-  timerData.minutes.textContent = '00';
-  timerData.seconds.textContent = '00';
+  resetForm();
 }
 
 restartBtn.addEventListener('click', handleUserRestart);
@@ -99,4 +83,19 @@ function convertMs(ms) {
     .padStart(2, '0');
 
   return { days, hours, minutes, seconds };
+}
+
+function resetForm() {
+  clearInterval(intervalId);
+  datePicker.removeAttribute('disabled');
+  startBtn.removeAttribute('disabled');
+  startBtn.classList.remove('hide');
+  startBtn.classList.remove('visually-hidden');
+  restartBtn.classList.remove('on-screen');
+  restartBtn.classList.add('visually-hidden');
+  clearInterval(intervalId);
+  timerData.days.textContent = '00';
+  timerData.hours.textContent = '00';
+  timerData.minutes.textContent = '00';
+  timerData.seconds.textContent = '00';
 }
